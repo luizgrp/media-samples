@@ -16,9 +16,7 @@
 
 package com.example.android.pictureinpicture
 
-import android.app.PendingIntent
-import android.app.PictureInPictureParams
-import android.app.RemoteAction
+import android.app.*
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -26,7 +24,9 @@ import android.content.IntentFilter
 import android.content.res.Configuration
 import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.util.Rational
 import android.view.View
 import android.widget.Button
@@ -178,6 +178,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        registerActivityLifecycleCallbacks()
         setContentView(R.layout.activity_main)
 
         // View references
@@ -265,6 +266,42 @@ class MainActivity : AppCompatActivity() {
             insetsController?.show(WindowInsetsCompat.Type.systemBars())
             scrollView.visibility = View.VISIBLE
             movieView.setAdjustViewBounds(true)
+        }
+    }
+
+    private fun registerActivityLifecycleCallbacks() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+                private val TAG = MainActivity::class.java.simpleName
+
+                override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+                    Log.d(TAG, "onActivityCreated: [isInPictureInPictureMode=$isInPictureInPictureMode]")
+                }
+
+                override fun onActivityStarted(activity: Activity) {
+                    Log.d(TAG, "onActivityStarted: [isInPictureInPictureMode=$isInPictureInPictureMode]")
+                }
+
+                override fun onActivityResumed(activity: Activity) {
+                    Log.d(TAG, "onActivityResumed: [isInPictureInPictureMode=$isInPictureInPictureMode]")
+                }
+
+                override fun onActivityPaused(activity: Activity) {
+                    Log.d(TAG, "onActivityPaused: [isInPictureInPictureMode=$isInPictureInPictureMode] [isFinishing=$isFinishing]")
+                }
+
+                override fun onActivityStopped(activity: Activity) {
+                    Log.d(TAG, "onActivityStopped: [isInPictureInPictureMode=$isInPictureInPictureMode] [isFinishing=$isFinishing]")
+                }
+
+                override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+                    Log.d(TAG, "onActivitySaveInstanceState: [isInPictureInPictureMode=$isInPictureInPictureMode]")
+                }
+
+                override fun onActivityDestroyed(activity: Activity) {
+                    Log.d(TAG, "onActivityDestroyed: [isInPictureInPictureMode=$isInPictureInPictureMode]")
+                }
+            })
         }
     }
 
